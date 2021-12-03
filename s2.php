@@ -36,7 +36,7 @@ include "inc-head.php"?>
 	<!--header-->
 	<?php include "inc-header.php"?>
 
-	<section class="page-banner" style="background:url(img/a15.png) no-repeat center / cover;">
+	<section class="page-banner" style="background: url(img/a15.png) no-repeat center / cover;">
 		<div class="container">
 
 			<div class="row">
@@ -69,7 +69,7 @@ include "inc-head.php"?>
 				<div class="col-xl-7 col-lg-7 col-md-7 mb-5">
 					<div class="shop-detail">
 						<div class="shop-name">
-							<h3 class="title-shop" name="name"><?php  echo  $results['name'] ?></h3>
+							<h3 class="title-shop" name="name"> <?php  echo  $results['name'] ?></h3>
 							<div class="price-shop">
 								<span class="filter-price filter-price-r">$ 20.00  </span>
 								<span class="filter-price" name="price"><?php  echo  $results['price'] ?></span>
@@ -95,10 +95,7 @@ include "inc-head.php"?>
 						<div class="quantity-product">
 							<label class="quantity">Qty:</label>
 							<input type="number"  name="quantity"value="1" min="0" max="10">
-							
-							<!--add cart button-->
-							<a href="cart.php" class="add-cart" data-product ="<?php echo $product['id']?>">
-							<i class="fa fa-shopping-bag" aria-hidden="true"></i> Add to cart</a>
+							<a href="cart.php" id="addcart" class="add-cart"><i class="fa fa-shopping-bag" aria-hidden="true"></i> Add to cart</a>
 						</div>
 						<div class="wiselist">
 							<ul class="compare">
@@ -122,7 +119,47 @@ include "inc-head.php"?>
 
 		</div>
 	</section>
-
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+        var queryString = window.location.search;
+        var urlParams = new URLSearchParams(queryString);
+        var id = urlParams.get('id');
+        var isInsert = true;
+		if (id) {
+            axios.get('get-cart.php', {
+                params: {
+                    id: id
+                }
+            }).then(function(response) {
+                console.log(response.data);
+                document.getElementsByName('name')[0].value = response.data.name;
+                document.getElementsByName('quantity')[0].value = response.data.quantity;
+                document.getElementsByName('price')[0].value = response.data.price;
+            }).catch(function(error) {
+                console.log(error);
+                alert(error);
+            });
+            isInsert = false;
+        }
+       
+        document.getElementById(".add-cart").addEventListener("click", function(event) {
+            event.preventDefault();
+            
+                axios.post('cart-insert.php', {
+                        name: document.getElementsByName('name')[0].innerHTML,
+                        quantity: document.getElementsByName('quantity')[0].value,
+                        price: document.getElementsByName('price')[0].innerHTML,
+                    })
+                    .then(function(response) {
+                        console.log(response.data);
+                        alert('data inserted - '+ response.data);
+                    })
+                    .catch(function(error) {
+                        console.log(error);
+                        alert('error');
+                    });
+             } );
+    </script>
 	<section class="desc-tabbing pt-100">
 		<div class="container">
 			<div class="row">
@@ -284,33 +321,6 @@ include "inc-head.php"?>
 	<script src="js/script.js"></script>
 		
     <!-- script for add carts -->
-
-	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <script>
-        var myFunction = function(event) {
-            event.preventDefault();
-            var pid = this.getAttribute("data-product");
-            axios.post('cart-insert.php', {
-                pid: pid,
-                name: document.getElementsByName('name')[0].innerHTML,
-                quantity: document.getElementsByName('quantity')[0].value,
-                price: document.getElementsByName('price')[0].innerHTML,
-            })
-			.then(function(response) {
-                        console.log(response.data);
-                        alert('data updated - ' + response.data);
-                    })
-                    .catch(function(error) {
-                        console.log(error);
-                        alert('error');
-                    });
-            }
-             var elements = document.getElementsByClassName("add-cart");
-             for (var i = 0; i < elements.length; i++) {
-             elements[i].addEventListener('click', myFunction, false);
-            }
-    </script>
-
 	
 </body>
 </html>
